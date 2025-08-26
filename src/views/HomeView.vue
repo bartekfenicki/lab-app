@@ -1,6 +1,6 @@
 <template>
 <p>home</p>
 </template>
-<script setup>
+<script lang="ts" setup>
 
 </script>

@@ -1,5 +1,5 @@
 <template>
-<p>auth</p>
+<p>availability</p>
 </template>
 <script lang="ts" setup>
 

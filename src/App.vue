@@ -1,11 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterView , useRoute} from 'vue-router';
+import DesktopNav from './components/desktopNav.vue';
+
+const route = useRoute()
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+    <DesktopNav v-if="route.path !== '/auth'" />
+
+    <RouterView/>
 </template>
 
 <style scoped></style>

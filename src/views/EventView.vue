@@ -1,5 +1,6 @@
 <template>
-<p>auth</p>
+<p>events</p>
+
 </template>
 <script lang="ts" setup>
 

@@ -1,5 +1,5 @@
 <template>
-<p>auth</p>
+<p>Admin</p>
 </template>
 <script lang="ts" setup>
 
