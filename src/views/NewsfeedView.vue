@@ -8,7 +8,7 @@
 
 </template>
 <script lang="ts" setup>
-import NewsPost from '@/components/newsPost.vue';
+import NewsPost from '@/components/news/newsPost.vue';
 
 
 </script>

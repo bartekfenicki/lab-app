@@ -4,7 +4,7 @@
     </div>
 </template>
 <script lang="ts" setup>
-import CalendarUI from '@/components/calendarUI.vue';
+import CalendarUI from '@/components/calendar/calendarUI.vue';
 
 
 </script>
