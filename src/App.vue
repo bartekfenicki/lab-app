@@ -6,7 +6,7 @@ const route = useRoute()
 </script>
 
 <template>
-    <DesktopNav v-if="route.path !== '/auth'" />
+    <DesktopNav v-if="route.path !== '/auth' && route.path !== '/register'" />
 
     <RouterView/>
 </template>

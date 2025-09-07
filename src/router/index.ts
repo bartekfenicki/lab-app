@@ -9,6 +9,7 @@ import AvailabilityView from '@/views/AvailabilityView.vue'
 import HoursView from '@/views/HoursView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import AdminView from '@/views/AdminView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -66,6 +67,11 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
+    },
+     {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
     },
     
   ],

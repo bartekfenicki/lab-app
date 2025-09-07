@@ -1,6 +1,8 @@
 <template>
-<p>Profile</p>
+<Info/>
 </template>
 <script lang="ts" setup>
+import Info from '@/components/profile/info.vue';
+
 
 </script>
