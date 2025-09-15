@@ -7,14 +7,15 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev:frontend": "vite",
-    "build:frontend": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "dev:backend": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build:backend": "tsc -p tsconfig.backend.json",
-    "start:backend": "node dist/index.js",
-    "type-check": "vue-tsc --build",
-    "test:unit": "vitest"
+   "dev:frontend": "cd frontend && vite",
+  "build:frontend": "cd frontend && vue-tsc --noEmit && vite build",
+  "preview:frontend": "cd frontend && vite preview",
+  
+  "dev:backend": "cd backend && node --loader ts-node/esm src/index.ts",
+  "build:backend": "cd backend && tsc -p tsconfig.json",
+  "start:backend": "cd backend && node dist/index.js",
+  
+  "dev":  "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -36,6 +37,7 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.7.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.1",
     "jsdom": "^26.1.0",
     "npm-run-all2": "^8.0.4",
     "postcss": "^8.5.6",

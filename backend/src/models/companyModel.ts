@@ -1,4 +1,4 @@
-import { pool } from "../config/db";
+import { pool } from "../config/db.js";
 
 export interface Company {
   company_id?: number;
@@ -77,5 +77,5 @@ export const updateCompany = async (id: number, company: Partial<Company>): Prom
 // Delete company
 export const deleteCompany = async (id: number): Promise<boolean> => {
   const result = await pool.query("DELETE FROM company WHERE company_id = $1", [id]);
-  return result.rowCount > 0;
+  return result.rowCount ! > 0;
 };

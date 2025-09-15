@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import * as CompanyModel from "../models/companyModel";
+import * as CompanyModel from "../models/companyModel.js";
 
 export const getCompanies = async (req: Request, res: Response) => {
   try {
