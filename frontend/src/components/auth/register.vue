@@ -1,34 +1,41 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div v-if="!companyStore.company" class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-lg">
-      <!-- Logo -->
-      <div class="flex justify-center mb-6">
-        <img src="" alt="Logo" class="h-12" />
-      </div>
-
       <!-- Title -->
       <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">
         Register Company
       </h2>
 
-      <!-- Form -->
-      <form class="space-y-5">
+      <form @submit.prevent="submitCompany" class="space-y-5">
         <!-- Company Name -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
           <input
+            v-model="form.name"
             type="text"
-            placeholder="Enter company name"
+            required
             class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
-        <!-- Registration Number / Tax ID -->
+        <!-- Tax ID -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Company Registration Number / Tax ID</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Tax ID</label>
           <input
+            v-model="form.tax_id"
             type="text"
-            placeholder="Enter registration number"
+            required
+            class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            v-model="form.email"
+            type="email"
+            required
             class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
@@ -37,33 +44,23 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Industry Type</label>
           <select
+            v-model="form.industry_type"
             class="w-full border rounded-lg px-4 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
           >
             <option value="">Select industry</option>
-            <option value="it">Information Technology</option>
-            <option value="health">Healthcare</option>
-            <option value="finance">Finance</option>
-            <option value="education">Education</option>
-            <option value="retail">Retail</option>
+            <option value="IT">IT</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Finance">Finance</option>
+            <option value="Retail">Retail</option>
           </select>
-        </div>
-
-        <!-- Email -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Company Email Address</label>
-          <input
-            type="email"
-            placeholder="example@company.com"
-            class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
         </div>
 
         <!-- Phone -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Company Phone Number</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
           <input
+            v-model="form.phone"
             type="tel"
-            placeholder="+1 234 567 890"
             class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
@@ -72,23 +69,20 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Headquarters Address</label>
           <textarea
+            v-model="form.headquarters_address"
             rows="3"
-            placeholder="Enter full address"
             class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           ></textarea>
         </div>
 
-        <!-- Company Logo -->
+        <!-- Logo (optional string for now) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Company Logo (optional)</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Company Logo (URL, optional)</label>
           <input
-            type="file"
-            accept="image/*"
-            class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 
-                   file:rounded-lg file:border-0
-                   file:text-sm file:font-semibold
-                   file:bg-blue-50 file:text-blue-600
-                   hover:file:bg-blue-100"
+            v-model="form.logo"
+            type="text"
+            placeholder="https://example.com/logo.png"
+            class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
         </div>
 
@@ -100,10 +94,39 @@
           Register Company
         </button>
       </form>
+
+      <!-- Error -->
+      <p v-if="companyStore.error" class="mt-4 text-red-600 text-center">
+        {{ companyStore.error }}
+      </p>
     </div>
   </div>
+
+  <!-- Load Register User if success -->
+  <RegisterUser v-if="companyStore.company" />
 </template>
 
 <script setup lang="ts">
-// here later you’ll bind inputs with v-model and submit handler
+import { ref } from "vue";
+import { useCompanyStore } from "@/stores/company";
+import RegisterUser from "@/components/auth/registerUser.vue";
+
+const companyStore = useCompanyStore();
+
+const form = ref({
+  name: "",
+  tax_id: "",
+  email: "",
+  industry_type: "",
+  phone: "",
+  headquarters_address: "",
+  logo: "", // ✅ now a string instead of File
+});
+
+const submitCompany = async () => {
+  await companyStore.registerCompany(form.value);
+};
 </script>
+
+
+

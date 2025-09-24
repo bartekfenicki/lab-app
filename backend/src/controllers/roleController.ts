@@ -36,6 +36,16 @@ export const getRoleById = async (req: Request, res: Response) => {
   }
 };
 
+export const getRolesByCompanyId = async (req: Request, res: Response) => {
+  try {
+    const roles = await roleModel.getRolesByCompanyId(Number(req.params.companyId));
+    res.json(roles);
+  } catch (err) {
+    console.error("❌ Error fetching roles:", err);
+    res.status(500).json({ error: "Failed to fetch roles" });
+  }
+};
+
 // ✅ Update role
 export const updateUser = async (req: Request, res: Response) => {
   try {

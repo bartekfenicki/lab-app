@@ -5,10 +5,11 @@ import * as userModel from "../models/usersModel.js";
 // ✅ Create a user
 export const createUser = async (req: Request, res: Response) => {
   try {
+    console.log("Request body:", req.body);
     const user = await userModel.createUser(req.body);
     res.status(201).json(user);
   } catch (err) {
-    console.error("❌ Error creating user:", err);
+    console.error("❌ Error creating user:", err, userModel, req.body);
     res.status(500).json({ error: "Failed to create user" });
   }
 };

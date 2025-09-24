@@ -1,35 +1,58 @@
 import { pool } from "../config/db.js";
-
+import bcrypt from "bcrypt";
 export interface User {
-  user_id: number;
+  user_id?: number;
   company_id: number;
   role_id: number;
   first_name: string;
   last_name: string;
-  phone?: string;
   email: string;
   password_hash: string;
+  phone?: string;
   email_verified: boolean;
 }
 
+
 // ✅ Create user
 export const createUser = async (user: Omit<User, "user_id">): Promise<User> => {
-  const result = await pool.query<User>(
-    `INSERT INTO users (company_id, role_id, first_name, last_name, phone, email, password_hash, email_verified)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-     RETURNING *`,
-    [
+  try {
+    const hashedPassword = await bcrypt.hash(user.password_hash, 10);
+    const columns = [
+      "company_id", 
+      "role_id", 
+      "first_name", 
+      "last_name", 
+      "email", 
+      "password_hash", 
+      "phone", 
+      "email_verified"
+    ];
+
+    const values = [
       user.company_id,
       user.role_id,
       user.first_name,
       user.last_name,
-      user.phone || null,
       user.email,
-      user.password_hash,
-      user.email_verified,
-    ]
-  );
-  return result.rows[0];
+      hashedPassword,
+      user.phone,
+      user.email_verified || false
+    ];
+
+   const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
+
+   const query = `INSERT INTO users (${columns.join(", ")})
+               VALUES (${placeholders})
+               RETURNING *`;
+
+    const result = await pool.query<User>(query, values);
+
+    console.log("Inserted user:", result.rows[0]);
+    return result.rows[0];
+  } catch (err) {
+    console.error("❌ Error in createUser:", err);
+    throw err;
+  }
 };
 
 // ✅ Get all users

@@ -7,17 +7,16 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-   "dev:frontend": "cd frontend && vite",
-  "build:frontend": "cd frontend && vue-tsc --noEmit && vite build",
-  "preview:frontend": "cd frontend && vite preview",
-  
-  "dev:backend": "cd backend && node --loader ts-node/esm src/index.ts",
-  "build:backend": "cd backend && tsc -p tsconfig.json",
-  "start:backend": "cd backend && node dist/index.js",
-  
-  "dev":  "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
+    "dev:frontend": "cd frontend && vite",
+    "build:frontend": "cd frontend && vue-tsc --noEmit && vite build",
+    "preview:frontend": "cd frontend && vite preview",
+    "dev:backend": "cd backend && node --loader ts-node/esm src/index.ts",
+    "build:backend": "cd backend && tsc -p tsconfig.json",
+    "start:backend": "cd backend && node dist/index.js",
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\""
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
@@ -28,6 +27,7 @@
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/jsdom": "^21.1.7",

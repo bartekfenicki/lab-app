@@ -1,0 +1,32 @@
+// backend/src/controllers/authController.ts
+import { Request, Response } from "express";
+import * as authModel from "../models/authModel.js";
+import jwt from "jsonwebtoken";
+
+export const loginUser = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password)
+      return res.status(400).json({ error: "Email and password required" });
+
+    const user = await authModel.getUserByEmail(email);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const validPassword = await authModel.verifyPassword(password, user.password_hash);
+    if (!validPassword) return res.status(401).json({ error: "Invalid password" });
+
+    // Remove sensitive info
+    const { password_hash, ...userSafe } = user;
+
+    // 🔑 Generate a JWT token (valid 2 hours)
+    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET!, {
+      expiresIn: "2h",
+    });
+
+    res.json({ user: userSafe, token });
+  } catch (err) {
+    console.error("❌ Error logging in:", err);
+    res.status(500).json({ error: "Failed to login user" });
+  }
+};
+

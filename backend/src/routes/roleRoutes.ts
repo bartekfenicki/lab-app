@@ -5,6 +5,7 @@ import {
   getRoleById,
   updateUser,
   deleteRole,
+  getRolesByCompanyId,
 } from "../controllers/roleController.js";
 
 const router = Router();
@@ -78,6 +79,9 @@ router.get("/", getRoles);
  *         description: Server error
  */
 router.get("/:id", getRoleById);
+
+
+router.get("/company/:companyId", getRolesByCompanyId);
 
 /**
  * @swagger

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth';
 import HomeView from '@/views/HomeView.vue'
 import AuthView from '@/views/AuthView.vue'
 import ProfileView from '@/views/ProfileView.vue'
@@ -67,6 +68,7 @@ const router = createRouter({
       path: '/admin',
       name: 'admin',
       component: AdminView,
+      meta: { allowedRoles: [1, 2] } // 1 = Admin, 2 = Manager
     },
      {
       path: '/register',
@@ -76,5 +78,36 @@ const router = createRouter({
     
   ],
 })
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+  authStore.restoreSession(); // make sure the persisted session is loaded
+
+  const publicPages = ['/auth', '/register'];
+  const authRequired = !publicPages.includes(to.path);
+
+  if (authRequired && !authStore.user) {
+    // Redirect to login if not logged in
+    return next({ path: '/auth' });
+  }
+
+  next();
+});
+
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
+
+  const allowedRoles = to.meta.allowedRoles;
+
+  if (allowedRoles) {
+    const userRoleId = authStore.user?.role_id;
+
+    if (!userRoleId || !allowedRoles.includes(userRoleId)) {
+      return next({ name: 'home' });
+    }
+  }
+
+  next();
+});
 
 export default router

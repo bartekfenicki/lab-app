@@ -34,6 +34,15 @@ export const getRoleById = async (id: number): Promise<Role | null> => {
   return result.rows[0] || null;
 };
 
+// ✅ Get roles by company_id
+export const getRolesByCompanyId = async (companyId: number): Promise<Role[]> => {
+  const result = await pool.query<Role>(
+    "SELECT * FROM role WHERE company_id = $1 ORDER BY created_at DESC",
+    [companyId]
+  );
+  return result.rows;
+};
+
 // ✅ Update role
 export const updateRole = async (id: number, fields: Partial<Role>): Promise<Role | null> => {
   const keys = Object.keys(fields);

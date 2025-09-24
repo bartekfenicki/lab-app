@@ -12,21 +12,25 @@
       <div class="w-full max-w-md">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Welcome Back</h2>
 
-        <form class="space-y-4">
+        <form class="space-y-4" @submit.prevent="submitLogin">
           <div>
             <label class="block text-gray-600 mb-1">Email</label>
             <input
+              v-model="form.email"
               type="email"
               placeholder="you@example.com"
               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
           <div>
             <label class="block text-gray-600 mb-1">Password</label>
             <input
+              v-model="form.password"
               type="password"
               placeholder="••••••••"
               class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
@@ -37,6 +41,11 @@
             Log In
           </button>
         </form>
+
+        <!-- Error Message -->
+        <p v-if="authStore.error" class="text-red-600 text-center mt-2">
+          {{ authStore.error }}
+        </p>
 
         <!-- Register Redirect -->
         <p class="mt-4 text-center text-gray-600">
@@ -70,5 +79,26 @@
 </template>
 
 <script setup lang="ts">
-// No logic yet, just UI
+import { reactive } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+// Reactive form
+const form = reactive({
+  email: "",
+  password: "",
+});
+
+// Submit handler
+const submitLogin = async () => {
+  const success = await authStore.loginUser(form);
+  if (success) {
+    console.log("Logged in user:", authStore.user);
+    router.push("/"); // redirect to main page
+  }
+};
 </script>
+

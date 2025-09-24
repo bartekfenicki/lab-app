@@ -10,6 +10,7 @@ import { setupSwagger } from "./config/swagger.js";
 import shiftRoutes from "./routes/shiftRoutes.js";
 import hoursRoutes from "./routes/hoursRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ app.use("/api/news", newsPostRoutes);
 app.use("/api/shifts", shiftRoutes)
 app.use("/api/hours", hoursRoutes)
 app.use("/api/avilability", availabilityRoutes)
-
+app.use("/api/login", authRoutes)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();

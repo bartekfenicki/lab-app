@@ -34,11 +34,13 @@
             News
           </RouterLink>
         </div>
+        <CompanyStatus/>
       </div>
 
       <!-- Prawa strona (profile + settings) -->
       <div class="flex items-center space-x-4">
         <div class="relative flex items-center">
+          <authStatus />
     <!-- Ikona profilu -->
     <button @click="toggleMenu" class="focus:outline-none">
       <img
@@ -82,13 +84,15 @@
         >
           Availability
         </RouterLink>
-         <RouterLink
+        <RouterLink
+          v-if="authStore.user && [1, 2].includes(authStore.user.role_id)"
           to="/admin"
           class="block px-4 py-2 text-gray-700 hover:bg-blue-100 transition"
           @click="menuOpen = false"
         >
           Admin Panel
         </RouterLink>
+        <LogoutButton class="mx-auto my-2 block"/>
       </div>
     </transition>
   </div>
@@ -132,6 +136,12 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 import { ref } from 'vue'
+import authStatus from './auth/authStatus.vue';
+import LogoutButton from './auth/logoutButton.vue';
+import CompanyStatus from './auth/companyStatus.vue';
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
 
 const menuOpen = ref(false);
 

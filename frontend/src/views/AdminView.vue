@@ -37,13 +37,15 @@ import EventsTab from "@/components/admin/EventsTab.vue"
 import ShiftsTab from "@/components/admin/ShiftsTab.vue"
 import UsersTab from "@/components/admin/UsersTab.vue"
 import CompanySettingsTab from "@/components/admin/SettingsTab.vue"
+import RolesTab from "@/components/admin/rolesTab.vue"
 
 // Tabs definition
 const tabs = [
   { key: "events", label: "Events", component: EventsTab },
   { key: "shifts", label: "Shifts", component: ShiftsTab },
   { key: "users", label: "Users", component: UsersTab },
-  { key: "company", label: "Company Settings", component: CompanySettingsTab }
+  { key: "company", label: "Company Settings", component: CompanySettingsTab },
+  { key: "roles", label: "Roles", component: RolesTab }
 ]
 
 const currentTab = ref("events")
