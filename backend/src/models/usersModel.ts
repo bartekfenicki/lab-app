@@ -10,6 +10,7 @@ export interface User {
   password_hash: string;
   phone?: string;
   email_verified: boolean;
+  profilepic?: string;
 }
 
 
@@ -25,7 +26,8 @@ export const createUser = async (user: Omit<User, "user_id">): Promise<User> => 
       "email", 
       "password_hash", 
       "phone", 
-      "email_verified"
+      "email_verified",
+      "profilepic"
     ];
 
     const values = [
@@ -36,7 +38,8 @@ export const createUser = async (user: Omit<User, "user_id">): Promise<User> => 
       user.email,
       hashedPassword,
       user.phone,
-      user.email_verified || false
+      user.email_verified || false,
+      user.profilepic || null
     ];
 
    const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");

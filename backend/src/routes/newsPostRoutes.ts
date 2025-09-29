@@ -5,7 +5,10 @@ import {
   getNewsPostById,
   updateNewsPost,
   deleteNewsPost,
+  getPostsByCompany,
 } from "../controllers/newsPostController.js";
+import { upload } from "../middlewares/upload.js";
+import { authMiddleware } from "../middlewares/auth.js";
 
 const router = Router();
 
@@ -46,7 +49,7 @@ const router = Router();
  *       201:
  *         description: News post created successfully
  */
-router.post("/", createNewsPost);
+router.post("/", authMiddleware, upload.single("image"), createNewsPost);
 
 /**
  * @swagger
@@ -79,6 +82,39 @@ router.get("/", getNewsPosts);
  *         description: News post not found
  */
 router.get("/:id", getNewsPostById);
+
+
+/**
+ * @swagger
+ * /api/news/company/{companyId}:
+ *   get:
+ *     summary: Get all news posts for a company
+ *     tags: [NewsPosts]
+ *     parameters:
+ *       - in: path
+ *         name: companyId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the company
+ *     responses:
+ *       200:
+ *         description: List of news posts for the company
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/NewsPost'
+ *       400:
+ *         description: Invalid companyId
+ *       404:
+ *         description: No posts found for the given company
+ *       500:
+ *         description: Server error
+ */
+router.get("/company/:companyId", getPostsByCompany); 
+
 
 /**
  * @swagger

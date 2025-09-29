@@ -25,13 +25,21 @@ export const deleteReaction = async (news_id: number, user_id: number): Promise<
 };
 
 // ✅ Get all likes for a post
-export const getReactionsForPost = async (news_id: number): Promise<NewsReaction[]> => {
+export const getReactionsForPost = async (news_id: number): Promise<(NewsReaction & { user_name: string })[]> => {
   const result = await pool.query(
-    "SELECT * FROM newsreaction WHERE news_id = $1",
+    `
+    SELECT nr.reaction_id, nr.news_id, nr.user_id,
+           u.first_name || ' ' || u.last_name AS user_name
+    FROM newsreaction nr
+    JOIN users u ON u.user_id = nr.user_id
+    WHERE nr.news_id = $1
+    `,
     [news_id]
   );
+
   return result.rows;
 };
+
 
 // ✅ Check if a user liked a post
 export const hasUserLiked = async (news_id: number, user_id: number): Promise<boolean> => {

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import * as userModel from "../models/usersModel.js";
-
+import bcrypt from "bcrypt";
 
 // ✅ Create a user
 export const createUser = async (req: Request, res: Response) => {
@@ -39,10 +39,21 @@ export const getUserById = async (req: Request, res: Response) => {
 
 // ✅ Update user
 export const updateUser = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const updates = { ...req.body };
+
   try {
-    const updatedUser = await userModel.updateUser(Number(req.params.id), req.body);
+    // If password is being changed, hash it first
+    if (updates.password_hash) {
+      updates.password_hash = await bcrypt.hash(updates.password_hash, 10);
+    }
+
+    const updatedUser = await userModel.updateUser(id, updates);
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
-    res.json(updatedUser);
+
+    // Remove sensitive info before sending back
+    const { password_hash, ...safeUser } = updatedUser;
+    res.json(safeUser);
   } catch (err) {
     console.error("❌ Error updating user:", err);
     res.status(500).json({ error: "Failed to update user" });

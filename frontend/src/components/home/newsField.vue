@@ -1,7 +1,5 @@
 <template>
-  <section
-    class="bg-white rounded-xl shadow-md p-6 w-full max-w-5xl mx-auto"
-  >
+  <section class="bg-white rounded-xl shadow-md p-6 w-full max-w-5xl mx-auto">
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold text-gray-800">Recent News</h2>
@@ -16,8 +14,8 @@
     <!-- News Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       <div
-        v-for="post in recentNews.slice(0, 3)"
-        :key="post.id"
+        v-for="post in recentPosts"
+        :key="post.news_id"
         class="rounded-lg overflow-hidden shadow hover:shadow-lg transition bg-gray-50"
       >
         <!-- Image -->
@@ -50,31 +48,34 @@
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import { computed, onMounted } from "vue";
+import { useNewsStore } from "@/stores/news";
+import { useUserStore } from "@/stores/users";
+import { useCompanyStore } from "@/stores/company";
 
 interface NewsPost {
-  id: number;
+  news_id: number;
   title: string;
   image: string;
 }
 
-const recentNews: NewsPost[] = [
-  {
-    id: 1,
-    title: "Company Achieves Record Growth in Q2",
-    image:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800"
-  },
-  {
-    id: 2,
-    title: "New Office Opened in Downtown",
-    image:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800"
-  },
-  {
-    id: 3,
-    title: "Employee Spotlight: Meet Our Team Lead",
-    image:
-      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800"
+const newsStore = useNewsStore();
+const companyStore = useCompanyStore();
+const userStore = useUserStore()
+// Fetch news on mount
+onMounted(async () => {
+  await userStore.fetchUsers();
+ if (companyStore.company) {
+    await newsStore.fetchPostsByCompany(companyStore.company.company_id);
   }
-];
+});
+
+// Get the 3 most recent posts
+const recentPosts = computed(() => {
+  return newsStore.posts
+    .slice()
+    .sort((a, b) => (b.news_id - a.news_id)) // Assuming higher id = newer
+    .slice(0, 3);
+});
 </script>
+

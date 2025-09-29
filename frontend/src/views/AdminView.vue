@@ -38,20 +38,22 @@ import ShiftsTab from "@/components/admin/ShiftsTab.vue"
 import UsersTab from "@/components/admin/UsersTab.vue"
 import CompanySettingsTab from "@/components/admin/SettingsTab.vue"
 import RolesTab from "@/components/admin/rolesTab.vue"
+import postsTab from "@/components/admin/postsTab.vue"
 
 // Tabs definition
 const tabs = [
+  { key: "posts", label: "Posts", component: postsTab },
   { key: "events", label: "Events", component: EventsTab },
   { key: "shifts", label: "Shifts", component: ShiftsTab },
   { key: "users", label: "Users", component: UsersTab },
   { key: "company", label: "Company Settings", component: CompanySettingsTab },
-  { key: "roles", label: "Roles", component: RolesTab }
+  { key: "roles", label: "Roles", component: RolesTab },
 ]
 
 const currentTab = ref("events")
 
 // Dynamically resolve component
 const currentTabComponent = computed(() => {
-  return tabs.find((t) => t.key === currentTab.value)?.component || EventsTab
+  return tabs.find((t) => t.key === currentTab.value)?.component || postsTab
 })
 </script>

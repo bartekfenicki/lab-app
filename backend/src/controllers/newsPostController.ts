@@ -1,14 +1,58 @@
 import { Request, Response } from "express";
 import * as newsPostModel from "../models/newsPostModel.js";
+import cloudinary from "../config/cloudinary.js";
+
+export interface AuthRequest extends Request {
+  user?: {
+    user_id: number;
+    company_id: number;
+    role_id: number;
+  };
+}
 
 // ✅ Create a news post
-export const createNewsPost = async (req: Request, res: Response) => {
+export const createNewsPost = async (req: AuthRequest, res: Response) => {
   try {
-    const newsPost = await newsPostModel.createNewsPost(req.body);
-    res.status(201).json(newsPost);
+    const { title, description } = req.body;
+    let imageUrl = "";
+
+    // If file is uploaded
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = result.secure_url; // This is the URL to store in DB
+    }
+
+
+    
+    const user = req.user; 
+
+    console.log("req.user in controller:", req.user);
+
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    
+    const post = await newsPostModel.createNewsPost({
+      title,
+      description,
+      created_by: user.user_id,
+       company_id: user.company_id,
+      image: imageUrl,
+    });
+
+    res.status(201).json(post);
   } catch (err) {
-    console.error("❌ Error creating news post:", err);
-    res.status(500).json({ error: "Failed to create news post" });
+    console.error(err);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+};
+
+// Get posts by company
+export const getPostsByCompany = async (req: Request, res: Response) => {
+  try {
+    const companyId = parseInt(req.params.companyId);
+    const news = await newsPostModel.getNewsPostsByCompany(companyId);
+    res.json(news);
+  } catch (err: any) {
+    res.status(500).json({ error: "Failed to fetch company posts" });
   }
 };
 

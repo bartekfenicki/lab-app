@@ -17,11 +17,18 @@ export const loginUser = async (req: Request, res: Response) => {
 
     // Remove sensitive info
     const { password_hash, ...userSafe } = user;
-
+    
+console.log("User object before jwt.sign:", user);
     // 🔑 Generate a JWT token (valid 2 hours)
-    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET!, {
-      expiresIn: "2h",
-    });
+    const token = jwt.sign(
+  {
+    user_id: user.user_id,
+    company_id: user.company_id,
+    role_id: user.role_id,
+  },
+  process.env.JWT_SECRET!,
+  { expiresIn: "2h" }
+);
 
     res.json({ user: userSafe, token });
   } catch (err) {

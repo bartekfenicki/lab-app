@@ -2,22 +2,36 @@ import { pool } from "../config/db.js";
 
 export interface NewsPost {
   news_id: number;
+  company_id: number; 
   created_by: number;
   title: string;
   description: string;
-  image: string;
+  image?: string;
   created_at?: Date;
 }
 
 // ✅ Create a news post
-export const createNewsPost = async (news: Omit<NewsPost, "news_id" | "created_at">): Promise<NewsPost> => {
+export const createNewsPost = async (
+  news: Omit<NewsPost, "news_id" | "created_at">
+): Promise<NewsPost> => {
   const result = await pool.query(
-    `INSERT INTO newspost (created_by, title, description, image)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO newspost (company_id, created_by, title, description, image)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING *`,
-    [news.created_by, news.title, news.description, news.image]
+    [news.company_id, news.created_by, news.title, news.description, news.image]
   );
   return result.rows[0];
+};
+
+// ✅ Get all news posts by company
+export const getNewsPostsByCompany = async (
+  companyId: number
+): Promise<NewsPost[]> => {
+  const result = await pool.query(
+    `SELECT * FROM newspost WHERE company_id = $1 ORDER BY created_at DESC`,
+    [companyId]
+  );
+  return result.rows;
 };
 
 // ✅ Get all news posts
@@ -61,6 +75,22 @@ export const updateNewsPost = async (
 
 // ✅ Delete a news post
 export const deleteNewsPost = async (id: number): Promise<boolean> => {
-  const result = await pool.query(`DELETE FROM newspost WHERE news_id = $1`, [id]);
-  return result.rowCount! > 0;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Delete all reactions for the post
+    await client.query("DELETE FROM newsreaction WHERE news_id = $1", [id]);
+
+    // Delete the post
+    const result = await client.query("DELETE FROM newspost WHERE news_id = $1", [id]);
+
+    await client.query("COMMIT");
+    return result.rowCount! > 0;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 };

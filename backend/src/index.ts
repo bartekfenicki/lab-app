@@ -11,6 +11,7 @@ import shiftRoutes from "./routes/shiftRoutes.js";
 import hoursRoutes from "./routes/hoursRoutes.js";
 import availabilityRoutes from "./routes/availabilityRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import newsReactionRoutes from "./routes/newsReactionRoutes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.use("/api/shifts", shiftRoutes)
 app.use("/api/hours", hoursRoutes)
 app.use("/api/avilability", availabilityRoutes)
 app.use("/api/login", authRoutes)
+app.use("/api/newsreaction", newsReactionRoutes)
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();

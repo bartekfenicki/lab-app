@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useAuthStore } from "./auth";
 
 export const useUserStore = defineStore("users", {
   state: () => ({
@@ -61,6 +62,37 @@ export const useUserStore = defineStore("users", {
         this.users = this.users.filter(u => u.user_id !== userId);
       } catch (err: any) {
         this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    async updateUser(userId: number, fields: Partial<any>) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const res = await fetch(`http://localhost:5001/api/users/${userId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(fields),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Failed to update user");
+        }
+
+        const updatedUser = await res.json();
+        // Update the auth store if current user is updated
+        const authStore = useAuthStore();
+        if (authStore.user?.user_id === updatedUser.user_id) {
+          authStore.user = updatedUser;
+          localStorage.setItem("auth", JSON.stringify({ user: updatedUser, token: authStore.token }));
+        }
+
+        return updatedUser;
+      } catch (err: any) {
+        this.error = err.message || "Failed to update user";
+        return null;
       } finally {
         this.loading = false;
       }

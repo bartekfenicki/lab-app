@@ -44,5 +44,31 @@ export const useCompanyStore = defineStore("company", {
         this.loading = false;
       }
     },
+    async updateCompany(companyId: number, companyData: any) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const API_URL = `http://localhost:5001/api/companies/${companyId}`;
+        const res = await fetch(API_URL, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(companyData),
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Failed to update company");
+        }
+
+        const updatedCompany = await res.json();
+        this.company = updatedCompany;
+      } catch (err: any) {
+        this.error = err.message || "Failed to update company";
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 });
