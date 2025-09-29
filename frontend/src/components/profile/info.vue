@@ -6,7 +6,7 @@
       <div class="bg-white shadow rounded-xl p-6 flex flex-col sm:flex-row items-center sm:items-start sm:justify-between">
         <div class="flex items-center space-x-4">
           <img
-            :src="avatarUrl"
+            :src="authStore.user.profilepic"
             alt="Profile Avatar"
             class="w-20 h-20 rounded-full border shadow"
           />

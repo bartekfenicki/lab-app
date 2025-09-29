@@ -14,6 +14,7 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const validPassword = await authModel.verifyPassword(password, user.password_hash);
     if (!validPassword) return res.status(401).json({ error: "Invalid password" });
+    console.log("User from DB:", user);
 
     // Remove sensitive info
     const { password_hash, ...userSafe } = user;
@@ -31,6 +32,7 @@ console.log("User object before jwt.sign:", user);
 );
 
     res.json({ user: userSafe, token });
+    console.log("Safe user sent to client:", userSafe);
   } catch (err) {
     console.error("❌ Error logging in:", err);
     res.status(500).json({ error: "Failed to login user" });

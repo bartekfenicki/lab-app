@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as userModel from "../models/usersModel.js";
 import bcrypt from "bcrypt";
+import { v2 as cloudinary } from "cloudinary";
 
 // ✅ Create a user
 export const createUser = async (req: Request, res: Response) => {
@@ -40,18 +41,24 @@ export const getUserById = async (req: Request, res: Response) => {
 // ✅ Update user
 export const updateUser = async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const updates = { ...req.body };
+  const updates: any = { ...req.body };
 
   try {
-    // If password is being changed, hash it first
+    // ✅ Handle password hashing
     if (updates.password_hash) {
       updates.password_hash = await bcrypt.hash(updates.password_hash, 10);
+    }
+
+    // ✅ Handle profile picture if file is uploaded
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path);
+      updates.profilepic = result.secure_url;
     }
 
     const updatedUser = await userModel.updateUser(id, updates);
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
-    // Remove sensitive info before sending back
+    // Remove sensitive info before returning
     const { password_hash, ...safeUser } = updatedUser;
     res.json(safeUser);
   } catch (err) {

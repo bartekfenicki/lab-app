@@ -6,6 +6,9 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/userController.js";
+import { authMiddleware } from "../middlewares/auth.js";
+import { upload } from "../middlewares/upload.js";
+
 
 const router = Router();
 
@@ -102,7 +105,7 @@ router.get("/:id", getUserById);
  *       404:
  *         description: User not found
  */
-router.put("/:id", updateUser);
+router.put("/:id", authMiddleware, upload.single("profilepic"), updateUser);
 
 /**
  * @swagger

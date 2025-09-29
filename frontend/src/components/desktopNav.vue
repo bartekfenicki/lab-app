@@ -44,7 +44,7 @@
     <!-- Ikona profilu -->
     <button @click="toggleMenu" class="focus:outline-none">
       <img
-        src=""
+        :src="authStore.user?.profilepic"
         alt="Profile"
         class="w-12 h-12 rounded-full border-2 border-gray-300 hover:border-blue-600 transition"
       />
@@ -148,6 +148,8 @@ const menuOpen = ref(false);
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value;
 }
+
+console.log(authStore.user)
 
 document.addEventListener("click", (e) => {
   const menu = document.querySelector(".relative");
