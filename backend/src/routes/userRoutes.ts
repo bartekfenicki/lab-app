@@ -81,6 +81,7 @@ router.get("/", getUsers);
  */
 router.get("/:id", getUserById);
 
+
 /**
  * @swagger
  * /api/users/{id}:

@@ -5,7 +5,10 @@ import {
   getEventById,
   updateEvent,
   deleteEvent,
+  getCompanyEvents,
 } from "../controllers/eventsController.js";
+import { authMiddleware } from "../middlewares/auth.js";
+import { upload } from "../middlewares/upload.js";
 
 const router = Router();
 
@@ -52,7 +55,7 @@ const router = Router();
  *       500:
  *         description: Server error
  */
-router.post("/", createEvent);
+router.post("/", authMiddleware, upload.single("image"), createEvent);
 
 /**
  * @swagger
@@ -67,6 +70,30 @@ router.post("/", createEvent);
  *         description: Server error
  */
 router.get("/", getEvents);
+
+/**
+ * @swagger
+ * /api/events/company/{companyId}:
+ *   get:
+ *     summary: Get an event by ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Event ID
+ *     responses:
+ *       200:
+ *         description: Event details
+ *       404:
+ *         description: Event not found
+ *       500:
+ *         description: Server error
+ */
+
+router.get("/", authMiddleware, getCompanyEvents);
 
 /**
  * @swagger

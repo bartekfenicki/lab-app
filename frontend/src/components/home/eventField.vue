@@ -1,6 +1,6 @@
 <template>
   <section
-    class="bg-white rounded-xl shadow-md p-6 w-full max-w-xl mx-auto"
+    class="bg-white rounded-xl shadow-md p-6 w-full max-w-3xl mx-auto"
   >
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
@@ -22,8 +22,9 @@
       >
         <!-- Date Badge -->
         <div class="flex flex-col items-center justify-center bg-blue-100 text-blue-700 rounded-md px-2 py-1 w-14">
-          <span class="text-sm font-bold">{{ event.day }}</span>
-          <span class="text-xs uppercase">{{ event.month }}</span>
+            <span class="text-sm font-semibold text-gray-600">
+            {{ formatDayMonth(event.date) }}
+          </span>
         </div>
 
         <!-- Event Info -->
@@ -32,7 +33,7 @@
             {{ event.title }}
           </h3>
           <p class="text-xs text-gray-500">
-            {{ event.timeSpan }}
+            {{formatTime(event.event_start) }} - {{ formatTime(event.event_end) }} 
           </p>
         </div>
       </li>
@@ -51,37 +52,44 @@
 </template>
 
 <script setup lang="ts">
+import { useCompanyStore } from "@/stores/company";
+import { useEventsStore } from "@/stores/events";
+import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 
-interface Event {
-  id: number;
-  title: string;
-  day: string;
-  month: string;
-  timeSpan: string;
+const eventsStore = useEventsStore();
+const companyStore = useCompanyStore();
+
+onMounted(() => {
+  eventsStore.fetchCompanyEvents();
+ 
+});
+
+const formatTime = (timestamp: string | Date) => {
+  const d = new Date(timestamp);
+  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+};
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const upcomingEvents = computed(() => {
+  return eventsStore.events
+    .filter(e => e.company_id === companyStore.company?.company_id) 
+    .filter(e => {
+      const eventDate = new Date(e.date);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today; // only today or future
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // sort ascending
+});
+
+
+const formatDayMonth = (dateString: string | Date) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "short" }); // "Jan", "Feb", etc.
+  return `${day} ${month}`;
 }
 
-const upcomingEvents: Event[] = [
-  {
-    id: 1,
-    title: "Quarterly Planning Meeting",
-    day: "10",
-    month: "SEP",
-    timeSpan: "10:00 AM - 1:00 PM"
-  },
-  {
-    id: 2,
-    title: "Team Building Activity",
-    day: "15",
-    month: "SEP",
-    timeSpan: "2:00 PM - 5:00 PM"
-  },
-  {
-    id: 3,
-    title: "Client Presentation",
-    day: "20",
-    month: "SEP",
-    timeSpan: "9:00 AM - 11:00 AM"
-  }
-];
 </script>

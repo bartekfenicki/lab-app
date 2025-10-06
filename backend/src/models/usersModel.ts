@@ -70,6 +70,8 @@ export const getUserById = async (id: number): Promise<User | null> => {
   return result.rows[0] || null;
 };
 
+
+
 // ✅ Update user
 export const updateUser = async (id: number, fields: Partial<User>): Promise<User | null> => {
   const keys = Object.keys(fields);

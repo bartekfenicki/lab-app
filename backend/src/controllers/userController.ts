@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as userModel from "../models/usersModel.js";
+import { AuthRequest } from "../middlewares/auth.js";
 import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -25,6 +26,8 @@ export const getUsers = async (_req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
+
+
 
 // ✅ Get single user by ID
 export const getUserById = async (req: Request, res: Response) => {

@@ -6,6 +6,7 @@ export const useUserStore = defineStore("users", {
     users: [] as any[],
     loading: false,
     error: null as string | null,
+    companyUsers: [] as any[],
   }),
   actions: {
     // ✅ Fetch users for a company
@@ -66,6 +67,9 @@ export const useUserStore = defineStore("users", {
         this.loading = false;
       }
     },
+
+    
+
   async updateUserWithFormData(userId: number, formData: FormData) {
   this.loading = true;
   this.error = null;
