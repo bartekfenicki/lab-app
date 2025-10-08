@@ -1,13 +1,15 @@
 import { Router } from "express";
 import {
-  createShift,
-  getShifts,
-  getShiftById,
-  updateShift,
-  deleteShift,
-  startShift,
-  endShift
+  createShiftController,
+  getCompanyShiftsController,
+  approveShiftController,
+  startShiftController,
+  endShiftController,
+  getShiftByIdController,
+  updateShiftController,
+  deleteShiftController
 } from "../controllers/shiftController.js";
+
 
 const router = Router();
 
@@ -36,11 +38,11 @@ const router = Router();
  *       500:
  *         description: Failed to create shift
  */
-router.post("/", createShift);
+router.post("/", createShiftController);
 
 /**
  * @swagger
- * /api/shifts:
+ * /api/shifts/company/:company_id:
  *   get:
  *     summary: Get all shifts
  *     tags: [Shifts]
@@ -50,7 +52,7 @@ router.post("/", createShift);
  *       500:
  *         description: Failed to fetch shifts
  */
-router.get("/", getShifts);
+router.get("/company/:company_id", getCompanyShiftsController);
 
 /**
  * @swagger
@@ -71,7 +73,7 @@ router.get("/", getShifts);
  *       404:
  *         description: Shift not found
  */
-router.get("/:id", getShiftById);
+router.get("/:id", getShiftByIdController);
 
 /**
  * @swagger
@@ -98,7 +100,7 @@ router.get("/:id", getShiftById);
  *       404:
  *         description: Shift not found
  */
-router.put("/:id", updateShift);
+router.put("/:id", updateShiftController);
 
 /**
  * @swagger
@@ -119,7 +121,7 @@ router.put("/:id", updateShift);
  *       400:
  *         description: Shift cannot be started
  */
-router.patch("/:id/start", startShift);
+router.patch("/:id/start", startShiftController);
 
 /**
  * @swagger
@@ -140,7 +142,7 @@ router.patch("/:id/start", startShift);
  *       400:
  *         description: Shift cannot be ended
  */
-router.patch("/:id/end", endShift);
+router.patch("/:id/end", endShiftController);
 
 
 /**
@@ -162,6 +164,8 @@ router.patch("/:id/end", endShift);
  *       404:
  *         description: Shift not found
  */
-router.delete("/:id", deleteShift);
+router.delete("/:id", deleteShiftController);
+
+router.put("/:id/approve", approveShiftController);
 
 export default router;

@@ -211,10 +211,7 @@ const deleteUserConfirmed = async () => {
   }
 };
 
-// ✅ Delete user
-const deleteUser = async (userId: number) => {
-  await userStore.deleteUser(userId);
-};
+
 
 const canDeleteUser = (user: any) => {
   const currentUser = authStore.user;
