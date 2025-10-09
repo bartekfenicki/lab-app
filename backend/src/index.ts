@@ -28,7 +28,7 @@ app.use("/api/events", eventRoutes)
 app.use("/api/news", newsPostRoutes);
 app.use("/api/shifts", shiftRoutes)
 app.use("/api/hours", hoursRoutes)
-app.use("/api/avilability", availabilityRoutes)
+app.use("/api/availability", availabilityRoutes)
 app.use("/api/login", authRoutes)
 app.use("/api/newsreaction", newsReactionRoutes)
 app.use((req, res, next) => {

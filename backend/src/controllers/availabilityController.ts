@@ -15,7 +15,7 @@ export const createAvailability = async (req: Request, res: Response) => {
 // Get all for a user
 export const getAvailabilityByUser = async (req: Request, res: Response) => {
   try {
-    const user_id = Number(req.params.user_id);
+    const user_id = Number(req.params.id);
     const availability = await availabilityModel.getAvailabilityByUser(user_id);
     res.json(availability);
   } catch (err) {
@@ -33,6 +33,17 @@ export const getAvailabilityById = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("❌ Error fetching availability:", err);
     res.status(500).json({ error: "Failed to fetch availability" });
+  }
+};
+
+export const upsertAvailability = async (req: Request, res: Response) => {
+  try {
+    const { user_id, date, status, note } = req.body;
+    const result = await availabilityModel.upsertAvailability(user_id, date, status, note);
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Error upserting availability:", err);
+    res.status(500).json({ error: "Failed to upsert availability" });
   }
 };
 

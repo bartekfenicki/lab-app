@@ -5,19 +5,13 @@
       <h1 class="text-2xl font-bold text-gray-800">My Availability</h1>
 
       <div class="flex space-x-2">
-        <button
-          @click="prevMonth"
-          class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
+        <button @click="prevMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
           Prev
         </button>
         <span class="px-4 font-medium">
           {{ monthNames[currentMonth] }} {{ currentYear }}
         </span>
-        <button
-          @click="nextMonth"
-          class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-        >
+        <button @click="nextMonth" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
           Next
         </button>
       </div>
@@ -31,11 +25,7 @@
     <!-- Calendar Grid -->
     <div class="grid grid-cols-7 gap-2">
       <!-- Empty cells before month starts -->
-      <div
-        v-for="n in firstDayOfMonth"
-        :key="'empty-' + n"
-        class="h-16"
-      ></div>
+      <div v-for="n in firstDayOfMonth" :key="'empty-' + n" class="h-16"></div>
 
       <!-- Actual Days -->
       <div
@@ -64,61 +54,102 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, onMounted } from "vue";
+import { useAvailabilityStore } from "@/stores/availability";
+import { useAuthStore } from "@/stores/auth";
+
+const authStore = useAuthStore();
+const availabilityStore = useAvailabilityStore();
 
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
-]
-const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+];
+const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const currentMonth = ref(new Date().getMonth())
-const currentYear = ref(new Date().getFullYear())
-
-// Store availability
-// Example: { "2025-08-29": "available" }
-const availability = ref<Record<string, "available" | "unavailable">>({})
+const currentMonth = ref(new Date().getMonth());
+const currentYear = ref(new Date().getFullYear());
 
 const daysInMonth = computed(() => {
-  const days = new Date(currentYear.value, currentMonth.value + 1, 0).getDate()
-  return Array.from({ length: days }, (_, i) => i + 1)
-})
+  const days = new Date(currentYear.value, currentMonth.value + 1, 0).getDate();
+  return Array.from({ length: days }, (_, i) => i + 1);
+});
 
 const firstDayOfMonth = computed(() => {
-  return new Date(currentYear.value, currentMonth.value, 1).getDay()
-})
+  return new Date(currentYear.value, currentMonth.value, 1).getDay();
+});
+
+const formatDateKey = (day: number) => {
+  // Build YYYY-MM-DD manually, no Date() object
+  const y = currentYear.value;
+  const m = String(currentMonth.value + 1).padStart(2, "0");
+  const d = String(day).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 
 const availabilityStatus = (day: number) => {
-  const key = `${currentYear.value}-${currentMonth.value + 1}-${day}`
-  return availability.value[key]
-}
+  const key = formatDateKey(day);
+  return availabilityStore.availabilityMap[key];
+};
 
-const toggleAvailability = (day: number) => {
-  const key = `${currentYear.value}-${currentMonth.value + 1}-${day}`
-  if (!availability.value[key]) {
-    availability.value[key] = "available"
-  } else if (availability.value[key] === "available") {
-    availability.value[key] = "unavailable"
+const toggleAvailability = async (day: number) => {
+  const key = formatDateKey(day);
+  const current = availabilityStore.availabilityMap[key];
+  let newStatus: "available" | "unavailable" | null = null;
+
+  if (!current) newStatus = "available";
+  else if (current === "available") newStatus = "unavailable";
+  else newStatus = null;
+
+  if (newStatus) {
+    // Add or update availability
+    await availabilityStore.upsertAvailability(
+      authStore.user.user_id,
+      key,
+      newStatus
+    );
   } else {
-    delete availability.value[key] // reset
+    // Reset (delete from DB)
+    const entry = availabilityStore.availability.find((a) =>
+      a.date.startsWith(key)
+    );
+    if (entry) {
+      try {
+        const res = await fetch(`/api/availability/${entry.availability_id}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("Failed to delete availability");
+        availabilityStore.availability = availabilityStore.availability.filter(
+          (a) => !a.date.startsWith(key)
+        );
+      } catch (err) {
+        console.error("❌ Error deleting availability:", err);
+      }
+    }
   }
-}
+};
+
 
 const prevMonth = () => {
   if (currentMonth.value === 0) {
-    currentMonth.value = 11
-    currentYear.value -= 1
+    currentMonth.value = 11;
+    currentYear.value -= 1;
   } else {
-    currentMonth.value -= 1
+    currentMonth.value -= 1;
   }
-}
+};
 
 const nextMonth = () => {
   if (currentMonth.value === 11) {
-    currentMonth.value = 0
-    currentYear.value += 1
+    currentMonth.value = 0;
+    currentYear.value += 1;
   } else {
-    currentMonth.value += 1
+    currentMonth.value += 1;
   }
-}
+};
+
+onMounted(async () => {
+  await availabilityStore.fetchAvailability(authStore.user.user_id);
+});
 </script>

@@ -5,6 +5,7 @@ import {
   getAvailabilityById,
   updateAvailability,
   deleteAvailability,
+  upsertAvailability,
 } from "../controllers/availabilityController.js";
 
 const router = Router();
@@ -43,7 +44,7 @@ router.post("/", createAvailability);
  *       200:
  *         description: List of availability
  */
-router.get("/user/:user_id", getAvailabilityByUser);
+router.get("/user/:id", getAvailabilityByUser);
 
 /**
  * @swagger
@@ -104,5 +105,7 @@ router.put("/:id", updateAvailability);
  *         description: Deleted successfully
  */
 router.delete("/:id", deleteAvailability);
+
+router.post("/upsert", upsertAvailability);
 
 export default router;
