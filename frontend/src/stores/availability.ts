@@ -10,54 +10,60 @@ interface Availability {
 
 export const useAvailabilityStore = defineStore("availability", {
   state: () => ({
-    availability: [] as any[],
+    availability: [] as Availability[],
     loading: false,
-    availabilityMap: {} as Record<string, "available" | "unavailable">,
+    availabilityMap: {} as Record<string, "available" | "unavailable">, // For the logged-in user
+    allAvailability: {} as Record<number, Record<string, "available" | "unavailable">>, // For all users in company
   }),
 
-  getters: {
-    availabilityMap: (state) => {
-      const map: Record<string, string> = {};
-      state.availability.forEach((a) => {
-        const dateKey = new Date(a.date).toISOString().split("T")[0];
-        map[dateKey] = a.status;
-      });
-      return map;
-    },
-  },
-
   actions: {
+    /**
+     * Fetch availability for a specific user
+     * Used both for personal calendar and admin view
+     */
     async fetchAvailability(user_id: number) {
-  this.loading = true;
-  try {
-    const res = await fetch(`http://localhost:5001/api/availability/user/${user_id}`);
-    if (!res.ok) throw new Error("Failed to fetch availability");
+      this.loading = true;
+      try {
+        const res = await fetch(`http://localhost:5001/api/availability/user/${user_id}`);
+        if (!res.ok) throw new Error("Failed to fetch availability");
 
-    const fetchedData = await res.json();
+        const fetchedData = await res.json();
 
-   this.availability = fetchedData.map((a: Availability) => ({
+        // Normalize dates: strip time zone info for consistency
+        const normalized = fetchedData.map((a: Availability) => ({
           ...a,
-          date: a.date.split("T")[0],
+          date: a.date.split("T")[0], // e.g. "2025-10-16"
         }));
 
-        // ✅ Zbuduj mapę dostępności
-        const newMap: Record<string, "available" | "unavailable"> = {};
-        for (const a of this.availability) {
-          newMap[a.date] = a.status;
-        }
-        this.availabilityMap = newMap;
-        console.log("Availability map keys:", Object.keys(this.availabilityMap));
-  } catch (err) {
-    console.error("❌ Failed to fetch availability:", err);
-  } finally {
-    this.loading = false;
-  }
-},
+        // If the current user is fetching their own data → update main state
+        this.availability = normalized;
 
+        // Build map for quick lookup
+        const map: Record<string, "available" | "unavailable"> = {};
+        for (const a of normalized) {
+          map[a.date] = a.status;
+        }
+
+        // Update current user's map
+        this.availabilityMap = map;
+
+        // Also store it in the multi-user collection
+        this.allAvailability[user_id] = map;
+
+        console.log(`✅ Availability fetched for user ${user_id}:`, Object.keys(map));
+      } catch (err) {
+        console.error("❌ Failed to fetch availability:", err);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /**
+     * Upsert (insert/update) availability
+     */
     async upsertAvailability(user_id: number, date: string, status: string, note?: string) {
       try {
-        const API_URL = `http://localhost:5001/api/availability/upsert`;
-        const res = await fetch(API_URL, {
+        const res = await fetch(`http://localhost:5001/api/availability/upsert`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id, date, status, note }),
@@ -66,29 +72,44 @@ export const useAvailabilityStore = defineStore("availability", {
 
         const data = await res.json();
 
-        // Update local state
-        const existing = this.availability.find((a) => a.date.startsWith(date));
+        // Update local state for the current user
+        const existing = this.availability.find((a) => a.date === date);
         if (existing) {
           existing.status = data.status;
           existing.note = data.note;
         } else {
           this.availability.push(data);
         }
+
+        // Update maps
+        this.availabilityMap[date] = data.status;
+        if (!this.allAvailability[user_id]) this.allAvailability[user_id] = {};
+        this.allAvailability[user_id][date] = data.status;
+
+        console.log(`✅ Upserted availability for ${date}: ${status}`);
       } catch (err) {
         console.error("❌ Failed to upsert availability:", err);
       }
     },
 
-    async deleteAvailability(availability_id: number, date: string) {
+    /**
+     * Delete availability
+     */
+    async deleteAvailability(availability_id: number, date: string, user_id?: number) {
       try {
-        const API_URL = `http://localhost:5001/api/availability/${availability_id}`;
-        const res = await fetch(API_URL, {
+        const res = await fetch(`http://localhost:5001/api/availability/${availability_id}`, {
           method: "DELETE",
         });
         if (!res.ok) throw new Error("Failed to delete availability");
-        this.availability = this.availability.filter(
-          (a) => !a.date.startsWith(date)
-        );
+
+        // Update state
+        this.availability = this.availability.filter((a) => a.date !== date);
+        delete this.availabilityMap[date];
+        if (user_id && this.allAvailability[user_id]) {
+          delete this.allAvailability[user_id][date];
+        }
+
+        console.log(`🗑️ Deleted availability on ${date}`);
       } catch (err) {
         console.error("❌ Failed to delete availability:", err);
       }

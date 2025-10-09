@@ -39,12 +39,14 @@ import UsersTab from "@/components/admin/UsersTab.vue"
 import CompanySettingsTab from "@/components/admin/SettingsTab.vue"
 import RolesTab from "@/components/admin/rolesTab.vue"
 import postsTab from "@/components/admin/postsTab.vue"
+import AvailabilityTab from "@/components/admin/availabilityTab.vue"
 
 // Tabs definition
 const tabs = [
   { key: "posts", label: "Posts", component: postsTab },
   { key: "events", label: "Events", component: EventsTab },
   { key: "shifts", label: "Shifts", component: ShiftsTab },
+  { key: "availability", label: "Availability", component: AvailabilityTab },
   { key: "users", label: "Users", component: UsersTab },
   { key: "company", label: "Company Settings", component: CompanySettingsTab },
   { key: "roles", label: "Roles", component: RolesTab },
